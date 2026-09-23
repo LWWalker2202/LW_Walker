@@ -265,6 +265,16 @@ footer{
   font-size:.83rem; color:var(--text-muted); text-align:center;
 }
 
+/* 页脚访问次数：默认藏起来，等统计脚本真把数字写进来再显示，
+   这样服务不可用时页面上不会留一个空的「访问次数：」 */
+.views{
+  display:none;
+  margin:9px 0 0;
+  font-size:.8rem; letter-spacing:.04em;
+}
+.views.show{ display:flex; align-items:center; justify-content:center; gap:7px; }
+.views-num{ font-weight:650; color:var(--accent); font-variant-numeric:tabular-nums; }
+
 #toTop{
   position:fixed; right:24px; bottom:24px; z-index:40;
   width:42px; height:42px; border-radius:11px; cursor:pointer;
@@ -536,6 +546,10 @@ footer{
 <footer>
   <div class="wrap">
     © <span id="year">2025</span> <span class="lang-zh">苟宸菁 · 保留所有权利</span><span class="lang-en">Chenjing Gou · All rights reserved</span>
+    <p class="views" id="views">
+      <span class="lang-zh">访问次数</span><span class="lang-en">Page views</span>
+      <span class="views-num" id="busuanzi_value_site_pv">0</span>
+    </p>
   </div>
 </footer>
 
@@ -653,7 +667,31 @@ footer{
 
   document.getElementById('year').textContent = new Date().getFullYear();
 })();
+
+/* ═══════════════════════════════════════════════════════════
+   页脚访问次数
+   统计脚本没加载成功、或服务已经挂了，就不显示这一行，
+   免得页脚留下一个空的「访问次数：」
+   ═══════════════════════════════════════════════════════════ */
+(function () {
+  var box = document.getElementById('views');
+  var pv  = document.getElementById('busuanzi_value_site_pv');
+  if (!box || !pv) return;
+
+  var tries = 0;
+  var timer = setInterval(function () {
+    if (/^\d+$/.test((pv.textContent || '').trim())) {
+      box.classList.add('show');
+      clearInterval(timer);
+    } else if (++tries > 20) {   // 约 6 秒还拿不到数字，就当服务不可用
+      clearInterval(timer);
+    }
+  }, 300);
+})();
 </script>
+
+<!-- 页脚「访问次数」的统计脚本。不想用就删掉这一行，页脚那一行会自动隐藏 -->
+<script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
 </body>
 </html>
